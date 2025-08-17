@@ -24,6 +24,18 @@ It includes OAuth2 login with Google and a role-based user system.
 ## Database
 
 The application uses PostgreSQL. Liquibase handles the database migrations.
+```
+User --------< Review >-------- Institution
+│                             │
+│                             │
+│                             └---< Facility
+│
+└---< Comment
+│
+└---< Comparison >-------- Institution
+│
+└---< User_Roles >-------- Role
+```
 
 ## Security
 

@@ -1,0 +1,13 @@
+#DB configuration
+DB_USERNAME=
+DB_PASSWORD=
+DB_URL=
+
+# OAuth2 Google configuration
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_SCOPE=profile,email
+GOOGLE_REDIRECT_URI=http://localhost:8080/login/oauth2/code/google
+
+# Retry configuration
+RETRY_MAX_ATTEMPTS=3

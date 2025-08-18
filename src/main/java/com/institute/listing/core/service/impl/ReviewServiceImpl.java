@@ -1,6 +1,7 @@
 package com.institute.listing.core.service.impl;
 
 import com.institute.listing.core.dto.ReviewDTO;
+import com.institute.listing.core.exception.DuplicateReviewException;
 import com.institute.listing.core.exception.NotFoundException;
 import com.institute.listing.core.model.Institution;
 import com.institute.listing.core.model.Review;
@@ -33,7 +34,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new NotFoundException("Institution not found"));
 
         if (reviewRepository.existsByUserIdAndInstitutionId(authenticatedUser.getId(), institution.getId())) {
-            throw new IllegalArgumentException("You have already reviewed this institution");
+            throw new DuplicateReviewException("You have already reviewed this institution");
         }
 
         Review review = Review.fromDTO(dto, authenticatedUser, institution);
@@ -103,12 +104,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private void updateAvgRating(Institution institution) {
-        double avg = reviewRepository.findByInstitutionId(institution.getId())
-                .stream()
-                .mapToDouble(Review::getRating)
-                .average()
-                .orElse(0.0);
-        institution.setAvgRating(avg);
+        Double avg = reviewRepository.calculateAverageRatingByInstitutionId(institution.getId());
+        institution.setAvgRating(avg != null ? avg : 0.0);
         institutionRepository.save(institution);
     }
 

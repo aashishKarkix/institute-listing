@@ -1,9 +1,12 @@
 package com.institute.listing.core.model;
 
+import com.institute.listing.core.dto.InstitutionDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "institutions")
@@ -24,6 +27,10 @@ public class Institution {
 
     private String type; // school/college/university
     private String location;
+
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Review> reviews = new HashSet<>();
 
     @Column(name = "avg_rating")
     private Double avgRating;
@@ -51,5 +58,25 @@ public class Institution {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public InstitutionDTO toDTO() {
+        return InstitutionDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .type(this.type)
+                .location(this.location)
+                .avgRating(this.avgRating)
+                .build();
+    }
+
+    public static Institution fromDTO(InstitutionDTO dto) {
+        return Institution.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .type(dto.getType())
+                .location(dto.getLocation())
+                .avgRating(dto.getAvgRating())
+                .build();
     }
 }

@@ -3,6 +3,7 @@ package com.institute.listing.core.controller;
 import com.institute.listing.core.dto.ReviewDTO;
 import com.institute.listing.core.security.annotation.User;
 import com.institute.listing.core.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +21,7 @@ public class ReviewController {
 
     @User
     @PostMapping
-    public ResponseEntity<ReviewDTO> create(@RequestBody ReviewDTO dto,
+    public ResponseEntity<ReviewDTO> create(@Valid @RequestBody ReviewDTO dto,
                                             @AuthenticationPrincipal OAuth2User oauthUser) {
         return ResponseEntity.ok(service.createReview(dto, oauthUser));
     }
@@ -28,7 +29,7 @@ public class ReviewController {
     @User
     @PutMapping("/{id}")
     public ResponseEntity<ReviewDTO> update(@PathVariable Long id,
-                                            @RequestBody ReviewDTO dto,
+                                            @Valid @RequestBody ReviewDTO dto,
                                             @AuthenticationPrincipal OAuth2User oauthUser) {
         return ResponseEntity.ok(service.updateReview(id, dto, oauthUser));
     }

@@ -1,5 +1,6 @@
 package com.institute.listing.core.model;
 
+import com.institute.listing.core.dto.ReviewDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -46,5 +47,25 @@ public class Review {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public ReviewDTO toDTO() {
+        return ReviewDTO.builder()
+                .id(this.id)
+                .institutionId(this.institution != null ? this.institution.getId() : null)
+                .rating(this.rating)
+                .comment(this.comment)
+                .createdAt(this.createdAt)
+                .build();
+    }
+
+    public static Review fromDTO(ReviewDTO dto, User user, Institution institution) {
+        return Review.builder()
+                .id(dto.getId())
+                .user(user)
+                .institution(institution)
+                .rating(dto.getRating())
+                .comment(dto.getComment())
+                .build();
     }
 }

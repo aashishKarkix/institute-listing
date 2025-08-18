@@ -3,6 +3,7 @@ package com.institute.listing.core.controller;
 import com.institute.listing.core.dto.InstitutionDTO;
 import com.institute.listing.core.security.annotation.Admin;
 import com.institute.listing.core.service.InstitutionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,13 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/institutions")
+@RequiredArgsConstructor
 public class InstitutionController {
 
     private final InstitutionService service;
-
-    public InstitutionController(InstitutionService service) {
-        this.service = service;
-    }
 
     @Admin
     @PostMapping

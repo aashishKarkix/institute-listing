@@ -11,7 +11,6 @@ import com.institute.listing.core.repository.InstitutionRepository;
 import com.institute.listing.core.repository.ReviewRepository;
 import com.institute.listing.core.repository.UserRepository;
 import com.institute.listing.core.service.ReviewService;
-import com.institute.listing.core.service.SlackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -29,7 +28,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final InstitutionRepository institutionRepository;
     private final UserRepository userRepository;
     private final GeminiService geminiService;
-    private final SlackService slackService;
+    private final ReviewSlackNotificationService slackNotificationService;
 
     @Override
     public ReviewDTO createReview(ReviewDTO dto, OAuth2User oauthUser) {
@@ -41,28 +40,13 @@ public class ReviewServiceImpl implements ReviewService {
             throw new DuplicateReviewException("You have already reviewed this institution");
         }
 
-        String sentiment = geminiService.analyzeReviewSentiment(dto.getComment());
-        if ("INVALID_FEEDBACK".equalsIgnoreCase(sentiment)) {
-            throw new IllegalArgumentException("Review contains not proper comment");
-        }
+        validateSentiment(dto.getComment());
 
         Review review = Review.fromDTO(dto, authenticatedUser, institution);
         Review saved = reviewRepository.save(review);
         updateAvgRating(institution);
 
-        String message = """
-                %s added a new review for %s
-                • Rating: %.1f
-                • Comment: %s
-                """.formatted(
-                authenticatedUser.getName(),
-                institution.getName(),
-                saved.getRating(),
-                saved.getComment()
-        );
-
-        slackService.sendMessage(message);
-
+        slackNotificationService.sendReviewNotification(authenticatedUser, institution, saved, null, "created");
         return saved.toDTO();
     }
 
@@ -76,36 +60,16 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("You cannot update someone else's review");
         }
 
-        Double oldRating = review.getRating();
-        String oldComment = review.getComment();
+        validateSentiment(dto.getComment());
 
-        String sentiment = geminiService.analyzeReviewSentiment(dto.getComment());
-        if ("INVALID_FEEDBACK".equalsIgnoreCase(sentiment)) {
-            throw new IllegalArgumentException("Review contains not proper comment");
-        }
+        Review oldReview = review.toBuilder().build(); // copy old values
 
         review.setRating(dto.getRating());
         review.setComment(dto.getComment());
         Review updated = reviewRepository.save(review);
         updateAvgRating(updated.getInstitution());
 
-        String message = """
-            *%s* updated a review for *%s*:
-            • *Old Rating:* %.1f
-            • *Old Comment:* %s
-            • *New Rating:* %.1f
-            • *New Comment:* %s
-            """.formatted(
-                authenticatedUser.getName(),
-                review.getInstitution().getName(),
-                oldRating,
-                oldComment,
-                updated.getRating(),
-                updated.getComment()
-        );
-
-        slackService.sendMessage(message);
-
+        slackNotificationService.sendReviewNotification(authenticatedUser, updated.getInstitution(), updated, oldReview, "updated");
         return updated.toDTO();
     }
 
@@ -120,24 +84,12 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         Institution institution = review.getInstitution();
-        Double oldRating = review.getRating();
-        String oldComment = review.getComment();
+        Review oldReview = review.toBuilder().build();
 
         reviewRepository.delete(review);
         updateAvgRating(institution);
 
-        String message = """
-            *%s* deleted a review for *%s*:
-            • *Rating:* %.1f
-            • *Comment:* %s
-            """.formatted(
-                authenticatedUser.getName(),
-                institution.getName(),
-                oldRating,
-                oldComment
-        );
-
-        slackService.sendMessage(message);
+        slackNotificationService.sendReviewNotification(authenticatedUser, institution, null, oldReview, "deleted");
     }
 
     @Override
@@ -166,6 +118,13 @@ public class ReviewServiceImpl implements ReviewService {
                 .toList();
     }
 
+    private void validateSentiment(String comment) {
+        String sentiment = geminiService.analyzeReviewSentiment(comment);
+        if ("INVALID_FEEDBACK".equalsIgnoreCase(sentiment)) {
+            throw new IllegalArgumentException("Review contains invalid comment");
+        }
+    }
+
     private void updateAvgRating(Institution institution) {
         Double avg = reviewRepository.calculateAverageRatingByInstitutionId(institution.getId());
         institution.setAvgRating(avg != null ? avg : 0.0);
@@ -178,6 +137,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         String email = oauthUser.getAttribute("email");
+        if (email == null || email.isBlank()) {
+            throw new AccessDeniedException("OAuth user email is missing");
+        }
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }

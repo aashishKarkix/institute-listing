@@ -40,6 +40,9 @@ dependencies {
 
 	/*re-try dependencies*/
 	implementation 'org.springframework.retry:spring-retry:2.0.5'
+
+	/*gemini*/
+	implementation 'com.google.genai:google-genai:1.12.0'
 }
 
 tasks.named('test') {

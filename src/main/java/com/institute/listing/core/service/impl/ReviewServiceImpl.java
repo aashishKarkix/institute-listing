@@ -1,5 +1,6 @@
 package com.institute.listing.core.service.impl;
 
+import com.institute.listing.ai.service.GeminiService;
 import com.institute.listing.core.dto.ReviewDTO;
 import com.institute.listing.core.exception.DuplicateReviewException;
 import com.institute.listing.core.exception.NotFoundException;
@@ -26,6 +27,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final InstitutionRepository institutionRepository;
     private final UserRepository userRepository;
+    private final GeminiService geminiService;
 
     @Override
     public ReviewDTO createReview(ReviewDTO dto, OAuth2User oauthUser) {
@@ -35,6 +37,11 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (reviewRepository.existsByUserIdAndInstitutionId(authenticatedUser.getId(), institution.getId())) {
             throw new DuplicateReviewException("You have already reviewed this institution");
+        }
+
+        String sentiment = geminiService.analyzeReviewSentiment(dto.getComment());
+        if ("INVALID_FEEDBACK".equalsIgnoreCase(sentiment)) {
+            throw new IllegalArgumentException("Review contains not proper comment");
         }
 
         Review review = Review.fromDTO(dto, authenticatedUser, institution);
@@ -52,6 +59,11 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (!review.getUser().getId().equals(authenticatedUser.getId())) {
             throw new AccessDeniedException("You cannot update someone else's review");
+        }
+
+        String sentiment = geminiService.analyzeReviewSentiment(dto.getComment());
+        if ("INVALID_FEEDBACK".equalsIgnoreCase(sentiment)) {
+            throw new IllegalArgumentException("Review contains not proper comment");
         }
 
         review.setRating(dto.getRating());

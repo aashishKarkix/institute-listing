@@ -11,3 +11,7 @@ GOOGLE_REDIRECT_URI=http://localhost:8080/login/oauth2/code/google
 
 # Retry configuration
 RETRY_MAX_ATTEMPTS=3
+
+#Gemini
+GEMINI_API_KEY=
+GEMINI_API_MODEL=gemini-2.5-flash

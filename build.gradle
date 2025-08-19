@@ -43,6 +43,9 @@ dependencies {
 
 	/*gemini*/
 	implementation 'com.google.genai:google-genai:1.12.0'
+
+	/*in-memory caching*/
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 }
 
 tasks.named('test') {

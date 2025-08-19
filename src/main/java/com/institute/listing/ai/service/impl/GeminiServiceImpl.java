@@ -1,5 +1,6 @@
 package com.institute.listing.ai.service.impl;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import com.institute.listing.ai.service.GeminiService;
@@ -7,28 +8,28 @@ import com.institute.listing.ai.util.PromptBuilder;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GeminiServiceImpl implements GeminiService {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiServiceImpl.class);
 
-    private final Client client;
-    private final Map<String, String> sentimentCache = new ConcurrentHashMap<>();
-
     @Value("${gemini.api.model}")
     private String modelId;
+    private final Client client;
+    private final Cache<String, String> sentimentCache;
 
-    public GeminiServiceImpl(@Value("${gemini.api.key}") String apiKey) {
+    public GeminiServiceImpl(@Value("${gemini.api.key}") String apiKey,
+                             @Qualifier("sentimentCache") Cache<String, String> sentimentCache) {
         this.client = Client.builder()
                 .apiKey(apiKey)
                 .build();
+        this.sentimentCache = sentimentCache;
     }
 
     /**
@@ -37,9 +38,9 @@ public class GeminiServiceImpl implements GeminiService {
      */
     @Override
     public String analyzeReviewSentiment(String reviewText) {
-        String cached = sentimentCache.get(reviewText);
+        String cached = sentimentCache.getIfPresent(reviewText);
         if (cached != null) {
-            log.info("Review text matched previous input, using cached sentiment: {}", reviewText);
+            log.info("Cache hit for review text: {}", reviewText);
             return cached;
         }
 

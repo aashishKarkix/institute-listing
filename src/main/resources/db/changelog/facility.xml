@@ -13,11 +13,23 @@
             <column name="institution_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="name" type="VARCHAR(255)">
+
+            <column name="available" type="BOOLEAN" defaultValueBoolean="true">
                 <constraints nullable="false"/>
             </column>
-            <column name="available" type="BOOLEAN" defaultValueBoolean="true"/>
-            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+            <column name="services" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="additional_info" type="VARCHAR(500)"/>
+
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="TIMESTAMP"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="facilities" baseColumnNames="institution_id"

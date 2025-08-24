@@ -3,26 +3,30 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet author="LISTING-INSTITUTE" id="20250917-100007">
+    <changeSet author="LISTING-INSTITUTE" id="20250924-100001">
         <createSequence sequenceName="comments_id_seq" startValue="1" incrementBy="1"/>
 
         <createTable tableName="comments">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_comments"/>
             </column>
-            <column name="review_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+            <column name="review_id" type="BIGINT"/>
+            <column name="institution_id" type="BIGINT"/>
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="comment_text" type="TEXT"/>
+            <column name="comment_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="comments" baseColumnNames="review_id"
                                  referencedTableName="reviews" referencedColumnNames="id"
                                  constraintName="fk_comment_review"/>
+        <addForeignKeyConstraint baseTableName="comments" baseColumnNames="institution_id"
+                                 referencedTableName="institutions" referencedColumnNames="id"
+                                 constraintName="fk_comment_institution"/>
         <addForeignKeyConstraint baseTableName="comments" baseColumnNames="user_id"
                                  referencedTableName="users" referencedColumnNames="id"
                                  constraintName="fk_comment_user"/>

@@ -1,0 +1,25 @@
+package com.institute.listing.core.controller;
+
+import com.institute.listing.core.dto.ComparisonRequestDTO;
+import com.institute.listing.core.dto.ComparisonResponseDTO;
+import com.institute.listing.core.service.ComparisonService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/comparisons")
+@RequiredArgsConstructor
+public class ComparisonController {
+
+    private final ComparisonService comparisonService;
+
+    @PostMapping
+    public ComparisonResponseDTO compareInstitutions(
+            @RequestBody ComparisonRequestDTO request,
+            @AuthenticationPrincipal OAuth2User oauthUser
+    ) {
+        return comparisonService.compareInstitutions(request, oauthUser);
+    }
+}

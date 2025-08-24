@@ -53,9 +53,11 @@ public class Review {
         return ReviewDTO.builder()
                 .id(this.id)
                 .institutionId(this.institution != null ? this.institution.getId() : null)
+                .institutionName(this.institution != null ? this.institution.getName() : null)
                 .rating(this.rating)
                 .comment(this.comment)
                 .createdAt(this.createdAt)
+                .userName(this.user != null ? this.user.getName() : null)
                 .build();
     }
 

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,4 +21,6 @@ public class InstitutionDTO {
     private String type;
     private String location;
     private Double avgRating;
+    private List<ReviewDTO> reviews;
+    private List<FacilityResponseDTO> facilities;
 }

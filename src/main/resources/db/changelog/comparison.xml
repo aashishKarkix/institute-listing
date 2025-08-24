@@ -10,27 +10,43 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_comparison"/>
             </column>
-            <column name="user_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="institution1_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="institution2_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="winner" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+            <column name="requester_key" type="VARCHAR(255)"/>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="comparison" baseColumnNames="user_id"
                                  referencedTableName="users" referencedColumnNames="id"
                                  constraintName="fk_comparison_user"/>
-        <addForeignKeyConstraint baseTableName="comparison" baseColumnNames="institution1_id"
+
+        <!-- Join table to support n-institutions -->
+        <createTable tableName="comparison_institutions">
+            <column name="comparison_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="institution_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="comparison_institutions"
+                       columnNames="comparison_id,institution_id"
+                       constraintName="pk_comparison_institutions"/>
+
+        <addForeignKeyConstraint baseTableName="comparison_institutions" baseColumnNames="comparison_id"
+                                 referencedTableName="comparison" referencedColumnNames="id"
+                                 constraintName="fk_comparison_institutions_comparison"/>
+
+        <addForeignKeyConstraint baseTableName="comparison_institutions" baseColumnNames="institution_id"
                                  referencedTableName="institutions" referencedColumnNames="id"
-                                 constraintName="fk_comparison_institution1"/>
-        <addForeignKeyConstraint baseTableName="comparison" baseColumnNames="institution2_id"
-                                 referencedTableName="institutions" referencedColumnNames="id"
-                                 constraintName="fk_comparison_institution2"/>
+                                 constraintName="fk_comparison_institutions_institution"/>
+
+        <createIndex tableName="comparison_institutions" indexName="idx_comparison_institutions_comparison">
+            <column name="comparison_id"/>
+        </createIndex>
+
+        <createIndex tableName="comparison_institutions" indexName="idx_comparison_institutions_institution">
+            <column name="institution_id"/>
+        </createIndex>
     </changeSet>
 </databaseChangeLog>

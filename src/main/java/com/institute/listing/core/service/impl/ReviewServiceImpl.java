@@ -9,8 +9,8 @@ import com.institute.listing.core.model.Review;
 import com.institute.listing.core.model.User;
 import com.institute.listing.core.repository.InstitutionRepository;
 import com.institute.listing.core.repository.ReviewRepository;
-import com.institute.listing.core.repository.UserRepository;
 import com.institute.listing.core.service.ReviewService;
+import com.institute.listing.core.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -26,13 +26,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final InstitutionRepository institutionRepository;
-    private final UserRepository userRepository;
+    private final AuthUtil authUtil;
     private final GeminiService geminiService;
     private final ReviewSlackNotificationService slackNotificationService;
 
     @Override
     public ReviewDTO createReview(ReviewDTO dto, OAuth2User oauthUser) {
-        User authenticatedUser = getAuthenticatedUser(oauthUser);
+        User authenticatedUser = authUtil.getAuthenticatedUser(oauthUser);
         Institution institution = institutionRepository.findById(dto.getInstitutionId())
                 .orElseThrow(() -> new NotFoundException("Institution not found"));
 
@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDTO updateReview(Long id, ReviewDTO dto, OAuth2User oauthUser) {
-        User authenticatedUser = getAuthenticatedUser(oauthUser);
+        User authenticatedUser = authUtil.getAuthenticatedUser(oauthUser);
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 
@@ -75,7 +75,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(Long id, OAuth2User oauthUser) {
-        User authenticatedUser = getAuthenticatedUser(oauthUser);
+        User authenticatedUser = authUtil.getAuthenticatedUser(oauthUser);
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 
@@ -129,19 +129,6 @@ public class ReviewServiceImpl implements ReviewService {
         Double avg = reviewRepository.calculateAverageRatingByInstitutionId(institution.getId());
         institution.setAvgRating(avg != null ? avg : 0.0);
         institutionRepository.save(institution);
-    }
-
-    private User getAuthenticatedUser(OAuth2User oauthUser) {
-        if (oauthUser == null) {
-            throw new AccessDeniedException("User is not authenticated");
-        }
-
-        String email = oauthUser.getAttribute("email");
-        if (email == null || email.isBlank()) {
-            throw new AccessDeniedException("OAuth user email is missing");
-        }
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 }

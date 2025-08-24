@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "comparison")
@@ -20,19 +22,19 @@ public class Comparison {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "institution1_id", nullable = false)
-    private Institution institution1;
+    @ManyToMany
+    @JoinTable(
+            name = "comparison_institutions",
+            joinColumns = @JoinColumn(name = "comparison_id"),
+            inverseJoinColumns = @JoinColumn(name = "institution_id")
+    )
+    @Builder.Default
+    private Set<Institution> institutions = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "institution2_id", nullable = false)
-    private Institution institution2;
-
-    @Column(nullable = false)
-    private String winner; // can be institution1.name or institution2.name
+    private String requesterKey;
 
     private LocalDateTime createdAt;
 

@@ -17,6 +17,9 @@ public class ReviewDTO {
     @NotNull(message = "Institution ID is required")
     private Long institutionId;
 
+    private String institutionName;
+    private String userName;
+
     @NotNull(message = "Rating is required")
     @DecimalMin(value = "0.0", message = "Rating must be at least 0")
     @DecimalMax(value = "5.0", message = "Rating must be at most 5")

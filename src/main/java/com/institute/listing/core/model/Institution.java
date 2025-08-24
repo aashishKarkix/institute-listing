@@ -1,11 +1,13 @@
 package com.institute.listing.core.model;
 
 import com.institute.listing.core.dto.InstitutionDTO;
+import com.institute.listing.core.mapper.FacilityMapper;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,6 +33,10 @@ public class Institution {
     @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Review> reviews = new HashSet<>();
+
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Facility> facilities = new HashSet<>();
 
     @Column(name = "avg_rating")
     private Double avgRating;
@@ -67,6 +73,12 @@ public class Institution {
                 .type(this.type)
                 .location(this.location)
                 .avgRating(this.avgRating)
+                .reviews(this.reviews != null
+                        ? this.reviews.stream().map(Review::toDTO).toList()
+                        : List.of())
+                .facilities(this.facilities != null
+                        ? this.facilities.stream().map(FacilityMapper::toDTO).toList()
+                        : List.of())
                 .build();
     }
 

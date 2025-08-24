@@ -28,5 +28,21 @@ public class InMemoryCacheConfig {
                 .expireAfterWrite(7, TimeUnit.DAYS)
                 .build();
     }
+
+
+    /**
+     * In-memory cache for storing comparisonCache analysis results.
+     * Currently, using Caffeine for fast, local caching.
+     * - Maximum of 100,000 review entries cached to prevent excessive memory usage.
+     * - Each entry expires 1 day after being written.
+     * Note: This cache is per application instance and will be cleared if the server restarts.
+     **/
+    @Bean(name = "comparisonCache")
+    public Cache<String, Integer> comparisonCache() {
+        return Caffeine.newBuilder()
+                .maximumSize(10_000)
+                .expireAfterWrite(1, TimeUnit.DAYS)
+                .build();
+    }
 }
 

@@ -27,7 +27,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) //adding this for postman testing only
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login**", "/error").permitAll()
+                        .requestMatchers("/api/comparisons/**", "/login**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

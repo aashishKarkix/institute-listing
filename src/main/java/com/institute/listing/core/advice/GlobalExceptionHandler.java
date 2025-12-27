@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.FORBIDDEN.value());
-        response.put("error", "Forbidden");
+        response.put("error", ex.getMessage());
         response.put("message", "You do not have permission to perform this action");
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }

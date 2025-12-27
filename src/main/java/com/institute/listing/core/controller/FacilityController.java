@@ -3,7 +3,6 @@ package com.institute.listing.core.controller;
 import com.institute.listing.core.dto.FacilityRequestDTO;
 import com.institute.listing.core.dto.FacilityResponseDTO;
 import com.institute.listing.core.security.annotation.Admin;
-import com.institute.listing.core.security.annotation.User;
 import com.institute.listing.core.service.FacilityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

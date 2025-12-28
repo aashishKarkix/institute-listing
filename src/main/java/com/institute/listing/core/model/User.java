@@ -29,6 +29,9 @@ public class User {
     @Column(unique = true)
     private String googleId;
 
+    @Column(name = "profile_image_url", length = 1024)
+    private String profileImageUrl;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

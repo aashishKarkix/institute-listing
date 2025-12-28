@@ -14,4 +14,14 @@
     <include file="comment.xml" relativeToChangelogFile="true"/>
     <include file="comparison.xml" relativeToChangelogFile="true"/>
 
+
+    <changeSet author="LISTING-INSTITUTE" id="20251228-100000" >
+        <addColumn tableName="users">
+            <column name="profile_image_url" type="varchar(1024)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
 </databaseChangeLog>

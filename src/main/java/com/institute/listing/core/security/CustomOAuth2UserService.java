@@ -37,6 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String googleId = oauthUser.getAttribute("sub");
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
+        String user_image = oauthUser.getAttribute("picture");
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             Role defaultRole = roleRepository.findByName("USER")
@@ -46,6 +47,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .name(name)
                     .email(email)
                     .googleId(googleId)
+                    .profileImageUrl(user_image)
                     .roles(new HashSet<>())
                     .createdAt(LocalDateTime.now())
                     .isActive(true)

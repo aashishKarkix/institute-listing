@@ -5,7 +5,6 @@ import com.institute.listing.core.security.handler.CustomLogoutHandler;
 import com.institute.listing.core.security.jwt.JwtAuthenticationFilter;
 import com.institute.listing.core.security.jwt.JwtService;
 import com.institute.listing.core.security.handler.OAuth2AuthenticationSuccessHandler;
-import com.institute.listing.core.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

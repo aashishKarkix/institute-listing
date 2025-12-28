@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    image: institute_listing_image
+    env_file:
+      - ./src/main/resources/.env
+    container_name: institute-listing-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql-container:5432/institute_listing_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgresql-container
+    command: [ "sh","-c", " while ! nc -z postgresql-container 5432; do sleep 1; done; java -jar /app/institute-listing.jar " ]
+    # The above line ensures Spring Boot waits for PostgreSQL to be ready before starting
+  postgresql-container:
+    image: postgres:14.1-alpine
+    container_name: postgresql-container
+    restart: always
+    environment:
+      POSTGRES_DB: institute_listing_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - institute_listing_volume:/var/lib/postgresql/data
+volumes:
+  institute_listing_volume:

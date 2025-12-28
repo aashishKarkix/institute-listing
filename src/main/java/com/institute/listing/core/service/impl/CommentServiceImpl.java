@@ -14,7 +14,7 @@ import com.institute.listing.core.service.CommentService;
 import com.institute.listing.core.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,8 +50,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDTO addCommentToReview(Long reviewId, CommentDTO dto, OAuth2User oauthUser) {
-        User user = authUtil.getAuthenticatedUser(oauthUser);
+    public CommentDTO addCommentToReview(Long reviewId, CommentDTO dto, Authentication authentication) {
+        User user = authUtil.getAuthenticatedUser(authentication);
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Review not found: " + reviewId));
 
@@ -67,8 +67,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDTO addCommentToInstitution(Long institutionId, CommentDTO dto, OAuth2User oauthUser) {
-        User user = authUtil.getAuthenticatedUser(oauthUser);
+    public CommentDTO addCommentToInstitution(Long institutionId, CommentDTO dto, Authentication authentication) {
+        User user = authUtil.getAuthenticatedUser(authentication);
         Institution institution = institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new NotFoundException("Institution not found: " + institutionId));
 
@@ -85,8 +85,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDTO updateComment(Long commentId, CommentDTO dto, OAuth2User oauthUser) {
-        User user = authUtil.getAuthenticatedUser(oauthUser);
+    public CommentDTO updateComment(Long commentId, CommentDTO dto, Authentication authentication) {
+        User user = authUtil.getAuthenticatedUser(authentication);
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment not found: " + commentId));
@@ -103,8 +103,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void deleteComment(Long commentId, OAuth2User oauthUser) {
-        User user = authUtil.getAuthenticatedUser(oauthUser);
+    public void deleteComment(Long commentId, Authentication authentication) {
+        User user = authUtil.getAuthenticatedUser(authentication);
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment not found: " + commentId));

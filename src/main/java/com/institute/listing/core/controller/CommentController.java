@@ -5,8 +5,7 @@ import com.institute.listing.core.security.annotation.User;
 import com.institute.listing.core.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,28 +30,28 @@ public class CommentController {
 
     @User
     @PostMapping("/reviews/{reviewId}")
-    public ResponseEntity<CommentDTO> addCommentToReview(@PathVariable Long reviewId, @RequestBody CommentDTO dto, @AuthenticationPrincipal OAuth2User oauthUser) {
-        CommentDTO saved = commentService.addCommentToReview(reviewId, dto, oauthUser);
+    public ResponseEntity<CommentDTO> addCommentToReview(@PathVariable Long reviewId, @RequestBody CommentDTO dto, Authentication authentication) {
+        CommentDTO saved = commentService.addCommentToReview(reviewId, dto, authentication);
         return ResponseEntity.created(URI.create("/api/comments/" + saved.getId())).body(saved);
     }
 
     @User
     @PostMapping("/institutions/{institutionId}")
-    public ResponseEntity<CommentDTO> addCommentToInstitution(@PathVariable Long institutionId, @RequestBody CommentDTO dto, @AuthenticationPrincipal OAuth2User oauthUser) {
-        CommentDTO saved = commentService.addCommentToInstitution(institutionId, dto, oauthUser);
+    public ResponseEntity<CommentDTO> addCommentToInstitution(@PathVariable Long institutionId, @RequestBody CommentDTO dto, Authentication authentication) {
+        CommentDTO saved = commentService.addCommentToInstitution(institutionId, dto, authentication);
         return ResponseEntity.created(URI.create("/api/comments/" + saved.getId())).body(saved);
     }
 
     @User
     @PutMapping("/{commentId}")
-    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody CommentDTO dto, @AuthenticationPrincipal OAuth2User oauthUser) {
-        return ResponseEntity.ok(commentService.updateComment(commentId, dto, oauthUser));
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody CommentDTO dto, Authentication authentication) {
+        return ResponseEntity.ok(commentService.updateComment(commentId, dto, authentication));
     }
 
     @User
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal OAuth2User oauthUser) {
-        commentService.deleteComment(commentId, oauthUser);
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, Authentication authentication) {
+        commentService.deleteComment(commentId, authentication);
         return ResponseEntity.noContent().build();
     }
 }

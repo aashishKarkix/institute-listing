@@ -5,7 +5,7 @@ import com.institute.listing.core.model.User;
 import com.institute.listing.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,12 +14,16 @@ public class AuthUtil {
 
     private final UserRepository userRepository;
 
-    public User getAuthenticatedUser(OAuth2User oauthUser) {
-        if (oauthUser == null) throw new AccessDeniedException("User is not authenticated");
+    public User getAuthenticatedUser(Authentication authentication) {
 
-        String email = oauthUser.getAttribute("email");
-        if (email == null || email.isBlank()) {
-            throw new AccessDeniedException("OAuth user email is missing");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (!(principal instanceof String email)) {
+            throw new AccessDeniedException("JWT principal is invalid");
         }
 
         return userRepository.findByEmail(email)

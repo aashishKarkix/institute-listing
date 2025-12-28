@@ -12,8 +12,8 @@ import com.institute.listing.core.repository.ReviewRepository;
 import com.institute.listing.core.service.ReviewService;
 import com.institute.listing.core.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewSlackNotificationService slackNotificationService;
 
     @Override
-    public ReviewDTO createReview(ReviewDTO dto, OAuth2User oauthUser) {
+    public ReviewDTO createReview(ReviewDTO dto, Authentication oauthUser) {
         User authenticatedUser = authUtil.getAuthenticatedUser(oauthUser);
         Institution institution = institutionRepository.findById(dto.getInstitutionId())
                 .orElseThrow(() -> new NotFoundException("Institution not found"));
@@ -51,8 +51,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewDTO updateReview(Long id, ReviewDTO dto, OAuth2User oauthUser) {
-        User authenticatedUser = authUtil.getAuthenticatedUser(oauthUser);
+    public ReviewDTO updateReview(Long id, ReviewDTO dto, Authentication user) {
+        User authenticatedUser = authUtil.getAuthenticatedUser(user);
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 
@@ -74,8 +74,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReview(Long id, OAuth2User oauthUser) {
-        User authenticatedUser = authUtil.getAuthenticatedUser(oauthUser);
+    public void deleteReview(Long id, Authentication user) {
+        User authenticatedUser = authUtil.getAuthenticatedUser(user);
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 

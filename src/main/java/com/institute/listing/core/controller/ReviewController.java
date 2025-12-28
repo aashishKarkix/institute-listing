@@ -6,8 +6,7 @@ import com.institute.listing.core.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,23 +21,23 @@ public class ReviewController {
     @User
     @PostMapping
     public ResponseEntity<ReviewDTO> create(@Valid @RequestBody ReviewDTO dto,
-                                            @AuthenticationPrincipal OAuth2User oauthUser) {
-        return ResponseEntity.ok(service.createReview(dto, oauthUser));
+                                            Authentication authentication) {
+        return ResponseEntity.ok(service.createReview(dto, authentication));
     }
 
     @User
     @PutMapping("/{id}")
     public ResponseEntity<ReviewDTO> update(@PathVariable Long id,
                                             @Valid @RequestBody ReviewDTO dto,
-                                            @AuthenticationPrincipal OAuth2User oauthUser) {
-        return ResponseEntity.ok(service.updateReview(id, dto, oauthUser));
+                                            Authentication authentication) {
+        return ResponseEntity.ok(service.updateReview(id, dto, authentication));
     }
 
     @User
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
-                                       @AuthenticationPrincipal OAuth2User oauthUser) {
-        service.deleteReview(id, oauthUser);
+                                       Authentication authentication) {
+        service.deleteReview(id, authentication);
         return ResponseEntity.noContent().build();
     }
 

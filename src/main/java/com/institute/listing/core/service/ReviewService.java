@@ -1,17 +1,17 @@
 package com.institute.listing.core.service;
 
 import com.institute.listing.core.dto.ReviewDTO;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
 public interface ReviewService {
 
-    ReviewDTO createReview(ReviewDTO dto, OAuth2User user);
+    ReviewDTO createReview(ReviewDTO dto, Authentication user);
 
-    ReviewDTO updateReview(Long id, ReviewDTO dto, OAuth2User authenticatedUser);
+    ReviewDTO updateReview(Long id, ReviewDTO dto, Authentication user);
 
-    void deleteReview(Long id, OAuth2User authenticatedUser);
+    void deleteReview(Long id, Authentication user);
 
     ReviewDTO getReview(Long id);
 

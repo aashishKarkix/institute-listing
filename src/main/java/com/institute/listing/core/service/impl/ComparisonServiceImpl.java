@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -54,8 +54,8 @@ public class ComparisonServiceImpl implements ComparisonService {
     }
 
     @Override
-    public ComparisonResponseDTO compareInstitutions(ComparisonRequestDTO request, OAuth2User oauthUser) {
-        User authenticatedUser = (oauthUser != null) ? authUtil.getAuthenticatedUser(oauthUser) : null;
+    public ComparisonResponseDTO compareInstitutions(ComparisonRequestDTO request, Authentication authentication) {
+        User authenticatedUser = (authentication != null) ? authUtil.getAuthenticatedUser(authentication) : null;
         String requesterKey = buildRequesterKey(authenticatedUser, request.getRequesterKey());
 
         enforceAnonymousLimitIfNeeded(authenticatedUser, requesterKey);

@@ -5,7 +5,7 @@ import com.institute.listing.core.model.Role;
 import com.institute.listing.core.model.User;
 import com.institute.listing.core.repository.RoleRepository;
 import com.institute.listing.core.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

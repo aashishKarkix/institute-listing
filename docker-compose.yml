@@ -1,23 +1,45 @@
-version: '3.8'
+version: '3.9'
 
 services:
+  builder:
+    image: docker:27-cli
+    container_name: institute-listing-image-builder
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+    working_dir: /app
+    environment:
+      DOCKER_USERNAME: ${DOCKER_USERNAME}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+    networks:
+      - institute-listing-network
+    command: [ "sh", "./build-push.sh" ]
+    restart: "no"
+
   app:
-    build: .
-    image: institute_listing_image
+    image: abishek1022/institute-listing:${IMAGE_TAG}
+    container_name: institute-listing-app
     env_file:
       - ./src/main/resources/.env
-    container_name: institute-listing-app
-    restart: unless-stopped
+    restart: on-failure
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql-container:5432/institute_listing_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - institute-listing-network
     depends_on:
-      - postgresql-container
-    command: [ "sh","-c", " while ! nc -z postgresql-container 5432; do sleep 1; done; java -jar /app/institute-listing.jar " ]
-    # The above line ensures Spring Boot waits for PostgreSQL to be ready before starting
+      postgresql-container:
+        condition: service_healthy
+    command: >
+      sh -c "
+      while ! nc -z postgresql-container 5432; do sleep 1; done;
+      # Start Spring Boot
+      java -jar /app/institute-listing.jar
+      "
+
   postgresql-container:
     image: postgres:14.1-alpine
     container_name: postgresql-container
@@ -30,5 +52,17 @@ services:
       - "5432:5432"
     volumes:
       - institute_listing_volume:/var/lib/postgresql/data
+    networks:
+      - institute-listing-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+networks:
+  institute-listing-network:
+    driver: bridge
+
 volumes:
   institute_listing_volume:

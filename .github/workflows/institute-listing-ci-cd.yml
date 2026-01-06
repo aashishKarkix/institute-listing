@@ -1,3 +1,183 @@
 name: Institute Listing API CI/CD pipeline
 
 on:
+  push:
+    branches:
+      - cd-cd-pipeline
+    paths:
+      - src/**
+      - Dockerfile
+      - docker-compose.yml
+      - .github/workflows/institute-listing-ci-cd.yml
+jobs:
+  compile:
+    runs-on: self-hosted
+    name: Compile Project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+      - name: Compile project
+        run: |
+          chmod +x gradlew
+          gradlew clean assemble
+
+  unit-tests:
+    runs-on: self-hosted
+    name: Unit Test Pipeline
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'correto'
+
+      - name: Grant Gradle wrapper permission
+        run: chmod +x gradlew
+      - name: Running Unit Tests
+        run: |
+          gradlew clean test
+  build:
+    runs-on: self-hosted
+    name: Build Institute Listing API
+    needs: [ compile, unit-tests ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Grant Gradle wrapper permission
+        run: chmod +x gradlew
+
+      - name: Compile Project
+        run: gradlew assemble
+  build-image:
+    name: Build And Push Docker Image of Institute Listing App
+    runs-on: self-hosted
+    needs: [build]
+
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make build script executable
+        run: chmod +x build-push.sh
+      - name: Build & Push Docker image using builder container
+        run: |
+          docker compose run --rm builder
+  build-postgresql-container:
+      name: Run postgresql container
+      runs-on: self-hosted
+      needs: [build-image]
+      env:
+        - POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        - POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        - POSTGRES_PASSWORD: ${{ secrets.POSTGRES_USER }}
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Ensure Postgresql container is running
+          run: |
+            CONTAINER_NAME="postgresql-container"
+            echo "Checking PostgreSQL container state..."
+            if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+              echo "PostgreSQL container exists"
+              if docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" | grep -q true; then
+                echo "PostgreSQL container is already running"
+              else
+                echo "PostgreSQL container exists but not running → starting"
+                docker start "$CONTAINER_NAME"
+              fi
+            else
+              echo "PostgreSQL container does not exist → creating via docker compose"
+              docker compose up -d  "$CONTAINER_NAME"
+            fi
+        - name: Wait for Postgresql to be healthy
+          run: |
+            echo "Waiting for postgresql healthcheck"
+            MAX_RETRIES=10
+            COUNT=0
+            until docker inspect -f '{{.State.Health.Status}}' postgresql-container 2>/dev/null | grep -q healthy; do
+              COUNT=$((COUNT+1))
+
+              if [ "$COUNT" -ge "$MAX_RETRIES" ]; then
+                echo "PostgreSQL failed to become healthy"
+                docker logs postgresql-container
+                exit 1
+              fi
+
+              echo "PostgreSQL not healthy yet... retry $COUNT/$MAX_RETRIES"
+              sleep 5
+            done
+
+  deploy:
+    name: Deploy Institute Listing API
+    runs-on: self-hosted
+    needs: [ build-image, build-postgresql-container ]
+    steps:
+
+      - name: Create deployment folder
+        run: ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p ci-cd"
+
+      - name: Copy docker-compose file
+        run: scp -oStrictHostKeyChecking=no docker-compose.yml ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:ci-cd/docker-compose.yml
+
+      - name: Copy .env  file for Image Tag
+        run: scp -oStrictHostKeyChecking=no .env ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:ci-cd/.env
+
+      - name: Set ENV variable and deploy
+        run: |
+          ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
+          export EMAIL_HOST_NAME=${{ secrets.EMAIL_HOST_NAME }}
+          export EMAIL_USER_NAME=${{ secrets.EMAIL_USER_NAME }}
+          export EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+          export DB_URL=${{ secrets.DB_URL }}
+          export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+
+          cd ci-cd
+          docker compose -f docker-compose.yml pull -q
+          docker compose -f docker-compose.yml up -d
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

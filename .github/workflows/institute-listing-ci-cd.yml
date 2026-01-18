@@ -8,6 +8,7 @@ on:
       - src/**
       - Dockerfile
       - docker-compose.yml
+      - build-push.sh
       - .github/workflows/institute-listing-ci-cd.yml
 
 jobs:

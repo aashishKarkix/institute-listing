@@ -19,8 +19,7 @@ IMAGE_NAME="institute-listing"
 REMOTE_IMAGE=$DOCKER_USERNAME/$IMAGE_NAME
 echo "Using image tag: $IMAGE_TAG"
 # 1️⃣ Docker login
-docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 # 2️⃣ Clean old images safely
 REPOS="institute-listing abishek1022/institute-listing"

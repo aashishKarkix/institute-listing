@@ -101,7 +101,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download .env artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: env-file
           path: src/main/resources/
@@ -117,7 +117,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download .env artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: env-file
           path: src/main/resources/
@@ -154,7 +154,7 @@ jobs:
 
     steps:
       - name: Download .env artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: env-file
           path: src/main/resources/

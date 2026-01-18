@@ -17,8 +17,8 @@ fi
 export IMAGE_TAG
 IMAGE_NAME="institute-listing"
 echo "Debug variables:"
-echo "IMAGE_TAG=$IMAGE_TAG"
-echo "RETRY_MAX_ATTEMPTS=$RETRY_MAX_ATTEMPTS"
+echo "DOCKER_USERNAME is set: ${DOCKER_USERNAME:+yes}"
+echo "DOCKER_PASSWORD is set: ${DOCKER_PASSWORD:+yes}"
 REMOTE_IMAGE=$DOCKER_USERNAME/$IMAGE_NAME
 echo "Using image tag: $IMAGE_TAG"
 # 1️⃣ Docker login

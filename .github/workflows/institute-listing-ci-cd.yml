@@ -100,7 +100,7 @@ jobs:
           EOF
 
       - name: Start PostgreSQL
-        run: docker compose up -d -T postgresql-container
+        run: docker compose up -d  postgresql-container
 
   deploy:
     name: Deploy Institute Listing API
@@ -115,5 +115,5 @@ jobs:
           mkdir -p ci-cd
           cd ci-cd
           docker compose pull
-          docker compose up -d -T institute-listing-app
+          docker compose up -d  institute-listing-app
           EOF

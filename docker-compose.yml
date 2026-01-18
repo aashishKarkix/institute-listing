@@ -19,8 +19,8 @@ services:
   app:
     image: abishek1022/institute-listing:${IMAGE_TAG}
     container_name: institute-listing-app
-    env_file:
-      - src/main/resources/.env
+    # env_file:
+    #   - src/main/resources/.env
     restart: on-failure
     ports:
       - "8080:8080"

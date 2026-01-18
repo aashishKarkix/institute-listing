@@ -57,33 +57,70 @@ jobs:
 
       - run: chmod +x gradlew
       - run: ./gradlew assemble
+  create-env:
+    name: Create .env file
+    runs-on: self-hosted
+    outputs:
+      env-artifact: .env
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env file from GitHub secrets
+        run: |
+          mkdir -p src/main/resources
+          cat <<EOF > src/main/resources/.env
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_USERNAME=${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD=${{ secrets.POSTGRES_USER }}
+          DB_URL=${{ secrets.DB_URL }}
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          GOOGLE_CLIENT_ID= ${{ secrets. GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_SCOPE= ${{ secrets.GOOGLE_SCOPE }}
+          GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
+          RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          
+          EOF
+
+      - name: Upload .env as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-file
+          path: src/main/resources/.env
 
   build-image:
     name: Build And Push Docker Image
     runs-on: self-hosted
-    needs: [build]
-
-    env:
-      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-
+    needs: [build,create-env]
     steps:
       - uses: actions/checkout@v4
+      - name: Download .env artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+          path: src/main/resources/
       - run: chmod +x build-push.sh
       - run: docker compose run --rm builder
 
   build-postgresql-container:
     name: Run PostgreSQL container
     runs-on: self-hosted
-    needs: [build-image]
-
-    env:
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+    needs: [create-env]
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download .env artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+          path: src/main/resources/
 
       - name: Ensure PostgreSQL container is running
         run: |
@@ -113,18 +150,20 @@ jobs:
   deploy:
     name: Deploy Institute Listing API
     runs-on: self-hosted
-    needs: [build-image, build-postgresql-container]
+    needs: [create-env,build-image,build-postgresql-container]
 
     steps:
+      - name: Download .env artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+          path: src/main/resources/
+
       - name: Deploy to VPS
         run: |
           ssh -oStrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
           mkdir -p ci-cd
           cd ci-cd
-
-          export DB_URL=${{ secrets.DB_URL }}
-          export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
 
           docker compose pull -q
           docker compose up -d

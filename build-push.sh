@@ -1,5 +1,11 @@
 #!/bin/bash
 set -e
+if [ -f .env ]; then
+  export $(grep -v '^#' .env | xargs)
+else
+  echo ".env file not found!"
+  exit 1
+fi
 IMAGE_TAG=$(date +%Y%m%d-%H%M%S)
 if grep -q '^IMAGE_TAG=' .env; then
   sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env

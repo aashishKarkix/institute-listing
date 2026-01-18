@@ -3,7 +3,7 @@ name: Institute Listing API CI/CD pipeline
 on:
   push:
     branches:
-      - cd-cd-pipeline
+      - ci-cd-pipeline
     paths:
       - src/**
       - Dockerfile

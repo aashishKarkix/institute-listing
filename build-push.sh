@@ -16,6 +16,8 @@ fi
 
 export IMAGE_TAG
 IMAGE_NAME="institute-listing"
+echo "Loaded .env variables:"
+grep -v '^#' .env | cut -d= -f1
 REMOTE_IMAGE=$DOCKER_USERNAME/$IMAGE_NAME
 echo "Using image tag: $IMAGE_TAG"
 # 1️⃣ Docker login

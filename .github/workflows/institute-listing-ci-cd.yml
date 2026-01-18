@@ -60,8 +60,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          mkdir -p src/main/resources
-          cat <<EOF > src/main/resources/.env
+          cat <<EOF > .env
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}

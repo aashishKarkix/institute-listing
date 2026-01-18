@@ -111,7 +111,7 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          ssh -oStrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
+          # ssh -oStrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
           mkdir -p ci-cd
           cd ci-cd
           docker compose pull

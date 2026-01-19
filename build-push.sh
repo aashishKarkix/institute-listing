@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e
-if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
-else
-  echo ".env file not found!"
-  exit 1
-fi
-IMAGE_TAG=$(date +%Y%m%d-%H%M%S)
-if grep -q '^IMAGE_TAG=' .env; then
-  sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
-else
-  echo "" >> .env
-  echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
-fi
+# if [ -f .env ]; then
+#   export $(grep -v '^#' .env | xargs)
+# else
+#   echo ".env file not found!"
+#   exit 1
+# fi
+# IMAGE_TAG=$(date +%Y%m%d-%H%M%S)
+# if grep -q '^IMAGE_TAG=' .env; then
+#   sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
+# else
+#   echo "" >> .env
+#   echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
+# fi
 
-export IMAGE_TAG
+# export IMAGE_TAG
 IMAGE_NAME="institute-listing"
 echo "Debug variables:"
 echo "DOCKER_USERNAME is set: ${DOCKER_USERNAME:+yes}"

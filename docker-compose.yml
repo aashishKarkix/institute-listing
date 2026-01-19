@@ -4,6 +4,10 @@ services:
   builder:
     image: docker:27-cli
     container_name: institute-listing-image-builder
+    env_file:
+      - .env
+    environment:
+      IMAGE_TAG: ${IMAGE_TAG}    
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/app

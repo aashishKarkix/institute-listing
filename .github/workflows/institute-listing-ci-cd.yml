@@ -103,6 +103,7 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
+          echo "Using IMAGE_TAG=$IMAGE_TAG"
           chmod +x build-push.sh
           docker compose run --rm -T builder
 

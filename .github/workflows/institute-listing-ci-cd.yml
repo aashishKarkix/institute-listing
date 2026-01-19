@@ -157,6 +157,6 @@ jobs:
       - name: Deploy Containers
         run: |
           # cd ci-cd
-          docker compose pull
-          docker compose up -d institute-listing-app
+          # docker compose pull
+          docker compose up -d app
           EOF

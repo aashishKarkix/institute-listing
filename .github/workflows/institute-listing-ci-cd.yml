@@ -113,15 +113,12 @@ jobs:
   build-postgresql-container:
     name: Run PostgreSQL container
     runs-on: self-hosted
-    needs: [build-image]
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Create PostgreSQL .env
         run: |
-          mkdir -p src/main/resources
-          cat <<EOF > src/main/resources/.env
+          cat <<EOF > .env
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}

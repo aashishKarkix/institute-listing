@@ -99,6 +99,14 @@ jobs:
           DB_URL=${{ secrets.DB_URL }}
           DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_SCOPE=${{ secrets.GOOGLE_SCOPE }}
+          GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
+          RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           EOF
 
       - name: Build & Push Docker Image
@@ -152,6 +160,14 @@ jobs:
           DB_URL=${{ secrets.DB_URL }}
           DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_SCOPE=${{ secrets.GOOGLE_SCOPE }}
+          GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
+          RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           EOF
 
       - name: Deploy Containers

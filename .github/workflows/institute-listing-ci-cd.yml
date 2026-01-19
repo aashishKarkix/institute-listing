@@ -12,56 +12,85 @@ on:
       - .github/workflows/institute-listing-ci-cd.yml
 
 jobs:
+# --------------------------------------------------
+# 1️⃣ Compile
+# --------------------------------------------------
   compile:
-    runs-on: self-hosted
     name: Compile Project
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'corretto'
+
       - run: |
           chmod +x gradlew
           ./gradlew clean assemble
 
+# --------------------------------------------------
+# 2️⃣ Unit Tests
+# --------------------------------------------------
   unit-tests:
-    runs-on: self-hosted
     name: Unit Test Pipeline
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'corretto'
+
       - run: |
           chmod +x gradlew
           ./gradlew clean test
 
+# --------------------------------------------------
+# 3️⃣ Build JAR
+# --------------------------------------------------
   build:
-    runs-on: self-hosted
     name: Build Institute Listing API
+    runs-on: self-hosted
     needs: [compile, unit-tests]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'corretto'
+
       - run: |
           chmod +x gradlew
           ./gradlew assemble
 
+# --------------------------------------------------
+# 4️⃣ Build & Push Docker Image
+# --------------------------------------------------
   build-image:
     name: Build And Push Docker Image
     runs-on: self-hosted
     needs: [build]
+
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create .env file
+      - name: Generate IMAGE_TAG
+        id: tag
+        run: |
+          IMAGE_TAG=$(date +%Y%m%d-%H%M%S)
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create .env for build
         run: |
           cat <<EOF > .env
+          IMAGE_TAG=${{ steps.tag.outputs.image_tag }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
@@ -70,27 +99,25 @@ jobs:
           DB_URL=${{ secrets.DB_URL }}
           DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GOOGLE_SCOPE=${{ secrets.GOOGLE_SCOPE }}
-          GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
-          RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
-          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
-          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           EOF
 
-      - run: chmod +x build-push.sh
-      - run: docker compose run --rm -T builder
+      - name: Build & Push Docker Image
+        run: |
+          chmod +x build-push.sh
+          docker compose run --rm -T builder
 
+# --------------------------------------------------
+# 5️⃣ Start PostgreSQL
+# --------------------------------------------------
   build-postgresql-container:
     name: Run PostgreSQL container
     runs-on: self-hosted
     needs: [build-image]
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create .env file
+      - name: Create PostgreSQL .env
         run: |
           mkdir -p src/main/resources
           cat <<EOF > src/main/resources/.env
@@ -100,20 +127,38 @@ jobs:
           EOF
 
       - name: Start PostgreSQL
-        run: docker compose up -d  postgresql-container
+        run: |
+          docker compose up -d postgresql-container
 
+# --------------------------------------------------
+# 6️⃣ Deploy Application
+# --------------------------------------------------
   deploy:
     name: Deploy Institute Listing API
     runs-on: self-hosted
     needs: [build-image, build-postgresql-container]
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to VPS
+      - name: Create deployment .env
         run: |
-          # ssh -oStrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
           mkdir -p ci-cd
+          cat <<EOF > ci-cd/.env
+          IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_USERNAME=${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_URL=${{ secrets.DB_URL }}
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          EOF
+
+      - name: Deploy Containers
+        run: |
           cd ci-cd
           docker compose pull
-          docker compose up -d  institute-listing-app
+          docker compose up -d institute-listing-app
           EOF

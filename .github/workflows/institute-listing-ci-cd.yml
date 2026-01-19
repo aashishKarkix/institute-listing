@@ -159,4 +159,3 @@ jobs:
           # cd ci-cd
           # docker compose pull
           docker compose up -d app
-          EOF

@@ -110,22 +110,70 @@ jobs:
             sleep 5
           done
 
-  deploy:
-    name: Deploy Institute Listing API
-    runs-on: self-hosted
-    needs: [build-image, build-postgresql-container]
+#  deploy:
+#    name: Deploy Institute Listing API
+#    runs-on: self-hosted
+#    needs: [build-image, build-postgresql-container]
+#
+#    steps:
+#      - name: Deploy to VPS
+#        run: |
+#          ssh -oStrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
+#          mkdir -p ci-cd
+#          cd ci-cd
+#
+#          export DB_URL=${{ secrets.DB_URL }}
+#          export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+#          export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+#
+#          docker compose pull -q
+#          docker compose up -d
+#          EOF
+deploy:
+  name: Deploy Institute Listing API
+  runs-on: self-hosted
+  needs: [build-image, build-postgresql-container]
 
-    steps:
-      - name: Deploy to VPS
-        run: |
-          ssh -oStrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
-          mkdir -p ci-cd
-          cd ci-cd
+  steps:
+    - uses: actions/checkout@v4
 
-          export DB_URL=${{ secrets.DB_URL }}
-          export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+    # ---- Setup SSH key ----
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
+        chmod 400 ~/.ssh/ec2.pem
 
-          docker compose pull -q
+    # ---- Remote deploy via SSH ----
+    - name: Deploy to EC2
+      run: |
+        ssh -i ~/.ssh/ec2.pem \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<'EOF'
+
+          mkdir -p ~/ci-cd
+          cd ~/ci-cd
+
+          cat <<ENV > .env
+          IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_USERNAME=${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_URL=${{ secrets.DB_URL }}
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_SCOPE=${{ secrets.GOOGLE_SCOPE }}
+          GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
+          RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          ENV
+
+          docker compose pull
           docker compose up -d
-          EOF
+        EOF

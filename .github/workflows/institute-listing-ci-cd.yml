@@ -185,26 +185,26 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
+          mkdir -p $HOME/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > $HOME/.ssh/ec2.pem
           chmod 400 ~/.ssh/ec2.pem
 
       - name: Create deployment folder
         run: |
-          chmod 400 ~/.ssh/ec2.pem \
-          ssh -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no \
-            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p ~/ci-cd"
+          chmod 400 $HOME/.ssh/ec2.pem \
+          ssh -i $HOME/.ssh/ec2.pem -o StrictHostKeyChecking=no \
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p $HOME/ci-cd"
 
       - name: Copy docker-compose file
         run: |
           scp -o StrictHostKeyChecking=no docker-compose.yml \
-            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:~/ci-cd/docker-compose.yml
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:$HOME/ci-cd/docker-compose.yml
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no \
+          ssh -i $HOME/.ssh/ec2.pem -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
-            cd ~/ci-cd
+            cd $HOME/ci-cd
 
             cat > .env <<ENV
             IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}

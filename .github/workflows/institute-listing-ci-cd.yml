@@ -129,24 +129,24 @@ jobs:
 #          docker compose pull -q
 #          docker compose up -d
 #          EOF
-deploy:
-  name: Deploy Institute Listing API
-  runs-on: self-hosted
-  needs: [build-image, build-postgresql-container]
+  deploy:
+    name: Deploy Institute Listing API
+    runs-on: self-hosted
+    needs: [build-image, build-postgresql-container]
 
-  steps:
-    - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
     # ---- Setup SSH key ----
-    - name: Setup SSH key
-      run: |
+      - name: Setup SSH key
+        run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
         chmod 400 ~/.ssh/ec2.pem
 
     # ---- Remote deploy via SSH ----
-    - name: Deploy to EC2
-      run: |
+      - name: Deploy to EC2
+        run: |
         ssh -i ~/.ssh/ec2.pem \
             -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<'EOF'

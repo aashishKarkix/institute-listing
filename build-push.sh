@@ -1,26 +1,28 @@
 #!/bin/bash
 set -e
-if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
-else
-  echo ".env file not found!"
-  exit 1
-fi
-IMAGE_TAG=$(date +%Y%m%d-%H%M%S)
-if grep -q '^IMAGE_TAG=' .env; then
-  sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
-else
-  echo "" >> .env
-  echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
-fi
+# if [ -f .env ]; then
+#   export $(grep -v '^#' .env | xargs)
+# else
+#   echo ".env file not found!"
+#   exit 1
+# fi
+# IMAGE_TAG=$(date +%Y%m%d-%H%M%S)
+# if grep -q '^IMAGE_TAG=' .env; then
+#   sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
+# else
+#   echo "" >> .env
+#   echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
+# fi
 
-export IMAGE_TAG
+# export IMAGE_TAG
 IMAGE_NAME="institute-listing"
+echo "Debug variables:"
+echo "DOCKER_USERNAME is set: ${DOCKER_USERNAME:+yes}"
+echo "DOCKER_PASSWORD is set: ${DOCKER_PASSWORD:+yes}"
 REMOTE_IMAGE=$DOCKER_USERNAME/$IMAGE_NAME
 echo "Using image tag: $IMAGE_TAG"
 # 1️⃣ Docker login
-docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 # 2️⃣ Clean old images safely
 REPOS="institute-listing abishek1022/institute-listing"

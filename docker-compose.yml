@@ -4,11 +4,14 @@ services:
   builder:
     image: docker:27-cli
     container_name: institute-listing-image-builder
+    env_file:
+      - .env   
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/app
     working_dir: /app
     environment:
+      IMAGE_TAG: ${IMAGE_TAG}
       DOCKER_USERNAME: ${DOCKER_USERNAME}
       DOCKER_PASSWORD: ${DOCKER_PASSWORD}
     networks:
@@ -19,8 +22,8 @@ services:
   app:
     image: abishek1022/institute-listing:${IMAGE_TAG}
     container_name: institute-listing-app
-    env_file:
-      - src/main/resources/.env
+    # env_file:
+    #   - src/main/resources/.env
     restart: on-failure
     ports:
       - "8080:8080"

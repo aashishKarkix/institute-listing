@@ -191,6 +191,7 @@ jobs:
 
       - name: Create deployment folder
         run: |
+          chmod 400 ~/.ssh/ec2.pem \
           ssh -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p ~/ci-cd"
 

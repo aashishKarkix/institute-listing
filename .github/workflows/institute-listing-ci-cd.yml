@@ -194,7 +194,7 @@ jobs:
 
       - name: Copy docker-compose file
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml \
+          scp -i /tmp/ec2.pem -o StrictHostKeyChecking=no docker-compose.yml \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:$HOME/ci-cd/docker-compose.yml
 
       - name: Deploy to EC2

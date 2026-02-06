@@ -185,7 +185,7 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          whoami
+          echo whoami
           echo $HOME
           mkdir -p $HOME/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > $HOME/.ssh/ec2.pem

@@ -189,7 +189,6 @@ jobs:
           docker compose up -d app --no-deps
           EOF
 
-#  deploy:
 #    name: Deploy Institute Listing API
 #    runs-on: self-hosted
 #    needs: [build-image, build-postgresql-container]

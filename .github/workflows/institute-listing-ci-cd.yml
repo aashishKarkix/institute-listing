@@ -200,11 +200,11 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -i /tmp/ec2.pem -o StrictHostKeyChecking=no \
-            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<'EOF'
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} \
           set -e
             cd "$HOME/ci-cd"
 
-            cat > .env <<EOT
+            cat <<EOF > .env
             IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
@@ -222,7 +222,7 @@ jobs:
             GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
             SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
-            EOT
+            EOF
 
             docker compose pull
             docker compose up -d

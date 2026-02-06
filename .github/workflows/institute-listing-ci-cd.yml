@@ -226,7 +226,7 @@ jobs:
 
             docker compose pull
             docker compose up -d
-            EOF
+
 
 #  deploy:
 #    name: Deploy Institute Listing API

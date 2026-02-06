@@ -21,10 +21,12 @@ public class GeminiServiceImpl implements GeminiService {
 
     @Value("${gemini.api.model}")
     private String modelId;
+    @Value("${gemini.api.key}")
+    private String apiKey;
     private final Client client;
     private final Cache<String, String> sentimentCache;
 
-    public GeminiServiceImpl(@Value("${gemini.api.key}") String apiKey,
+    public GeminiServiceImpl(
                              @Qualifier("sentimentCache") Cache<String, String> sentimentCache) {
         this.client = Client.builder()
                 .apiKey(apiKey)

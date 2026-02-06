@@ -164,7 +164,7 @@ jobs:
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<'EOF'
           set -e
 
-          cd "$HOME/actions-runner/_work/institute-listing/institute-listing/src/main/resources"
+          cd "$HOME/ci-cd"
 
           cat > .env <<EOT
           IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}

@@ -185,10 +185,9 @@ jobs:
       - name: Setup SSH key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2.pem
-          echo 400 /tmp/ec2.pem
+          chmod 400 /tmp/ec2.pem
       - name: Create deployment folder
         run: |
-          chmod 400 /tmp/ec2.pem \
           ssh -i /tmp/ec2.pem -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} \
           mkdir -p $HOME/ci-cd

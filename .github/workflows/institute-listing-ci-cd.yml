@@ -225,7 +225,7 @@ jobs:
           SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           EOT
 
-          docker compose up -d app
+          docker compose up -d app --no-deps
           EOF
 
 #  deploy:

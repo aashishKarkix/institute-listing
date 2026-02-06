@@ -188,8 +188,8 @@ jobs:
           echo 400 /tmp/ec2.pem
       - name: Create deployment folder
         run: |
-          chmod 400 $HOME/.ssh/ec2.pem \
-          ssh -i $HOME/.ssh/ec2.pem -o StrictHostKeyChecking=no \
+          chmod 400 /tmp/ec2.pem \
+          ssh -i /tmp/ec2.pem -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p $HOME/ci-cd"
 
       - name: Copy docker-compose file

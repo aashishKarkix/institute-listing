@@ -190,7 +190,8 @@ jobs:
         run: |
           chmod 400 /tmp/ec2.pem \
           ssh -i /tmp/ec2.pem -o StrictHostKeyChecking=no \
-            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p $HOME/ci-cd"
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} \
+          mkdir -p $HOME/ci-cd
 
       - name: Copy docker-compose file
         run: |
@@ -199,7 +200,7 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -i $HOME/.ssh/ec2.pem -o StrictHostKeyChecking=no \
+          ssh -i /tmp/ec2.pem -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
             cd $HOME/ci-cd
 

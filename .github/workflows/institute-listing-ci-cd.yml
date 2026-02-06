@@ -187,7 +187,7 @@ jobs:
         run: |
           mkdir -p $HOME/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > $HOME/.ssh/ec2.pem
-          chmod 400 ~/.ssh/ec2.pem
+          chmod 400 $HOME/.ssh/ec2.pem
 
       - name: Create deployment folder
         run: |

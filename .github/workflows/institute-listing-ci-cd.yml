@@ -201,33 +201,33 @@ jobs:
         run: |
           ssh -i "$RUNNER_TEMP/ec2.pem" -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<'EOF'
-      set -e
+          set -e
 
-      cd "$HOME/ci-cd"
+          cd "$HOME/ci-cd"
 
-      cat > .env <<EOT
-      IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
-      POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-      DB_USERNAME=${{ secrets.POSTGRES_USER }}
-      DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-      DB_URL=${{ secrets.DB_URL }}
-      DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-      GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_SCOPE=${{ secrets.GOOGLE_SCOPE }}
-      GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
-      RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
-      GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
-      GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
-      SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
-      EOT
+          cat > .env <<EOT
+          IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_USERNAME=${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DB_URL=${{ secrets.DB_URL }}
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_SCOPE=${{ secrets.GOOGLE_SCOPE }}
+          GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
+          RETRY_MAX_ATTEMPTS=${{ secrets.RETRY_MAX_ATTEMPTS }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_MODEL=${{ secrets.GEMINI_API_MODEL }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          EOT
 
-      docker compose pull
-      docker compose up -d app
-      EOF
+          docker compose pull
+          docker compose up -d app
+          EOF
 
 #  deploy:
 #    name: Deploy Institute Listing API

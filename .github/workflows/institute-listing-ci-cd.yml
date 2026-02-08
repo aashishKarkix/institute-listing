@@ -133,7 +133,6 @@ jobs:
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           EOF
-
       - name: Start PostgreSQL
         run: |
           docker compose up -d postgresql-container

@@ -110,8 +110,6 @@ jobs:
           EOF
 
       - name: Build & Push Docker Image
-        env:
-          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
         run: |
           echo "Using IMAGE_TAG=$IMAGE_TAG"
           chmod +x build-push.sh
@@ -168,6 +166,7 @@ jobs:
           cd "$HOME/ci-cd"
 
           cat > .env <<EOT
+          echo "Job output: ${{ needs.build-image.outputs.image_tag }}"
           IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}

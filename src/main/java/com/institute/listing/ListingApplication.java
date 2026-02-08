@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ListingApplication {
 
 	public static void main(String[] args) {
-		System.out.println("CICD is running");
+		System.out.println("CICD is running by Abishek khadka");
 		SpringApplication.run(ListingApplication.class, args);
 	}
 

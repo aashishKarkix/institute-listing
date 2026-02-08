@@ -23,7 +23,7 @@ services:
     image: abishek1022/institute-listing:${IMAGE_TAG}
     container_name: institute-listing-app
     env_file:
-      - /ci-cd/.env
+      - .env
     restart: on-failure
     ports:
       - "8080:8080"

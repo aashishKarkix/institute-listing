@@ -75,9 +75,6 @@ jobs:
     runs-on: self-hosted
     needs: [build]
 
-    outputs:
-      image_tag: ${{ steps.tag.outputs.image_tag }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -114,6 +111,8 @@ jobs:
           echo "Using IMAGE_TAG=$IMAGE_TAG"
           chmod +x build-push.sh
           docker compose up -d builder
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
   # --------------------------------------------------
   # 5️⃣ Start PostgreSQL
   # --------------------------------------------------

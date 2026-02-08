@@ -166,7 +166,6 @@ jobs:
           cd "$HOME/ci-cd"
 
           cat > .env <<EOT
-          echo "Job output: ${{ needs.build-image.outputs.image_tag }}"
           IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}

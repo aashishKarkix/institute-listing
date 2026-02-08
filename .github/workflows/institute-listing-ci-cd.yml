@@ -154,6 +154,8 @@ jobs:
         run: |
           scp -i /tmp/ec2.pem -o StrictHostKeyChecking=no docker-compose.yml \
             ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:$HOME/ci-cd/docker-compose.yml
+      - name: Debug IMAGE_TAG
+        run: echo "IMAGE_TAG=${{ needs.build-image.outputs.image_tag }}"
 
       - name: Deploy to EC2
         run: |

@@ -110,7 +110,7 @@ jobs:
         run: |
           echo "Using IMAGE_TAG=$IMAGE_TAG"
           chmod +x build-push.sh
-          docker compose up -d builder
+          docker compose up builder
     outputs:
       image_tag: ${{ steps.tag.outputs.image_tag }}
   # --------------------------------------------------

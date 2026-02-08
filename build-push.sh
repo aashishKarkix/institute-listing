@@ -31,6 +31,7 @@ echo "Cleaning old images..."
 for REPO in $REPOS; do
   IMAGE_IDS=$(docker images --format '{{.Repository}} {{.ID}}' | awk -v repo="$REPO" '$1 == repo {print $2}' | sort -u)
   docker ps -q --filter ancestor=$IMAGE_IDS | xargs -r docker stop
+  docker ps -q --filter ancestor=$IMAGE_IDS | xargs -r docker rm
   if [ -n "$IMAGE_IDS" ]; then
     echo "Found images for $REPO: $IMAGE_IDS"
     for IMAGE_ID in $IMAGE_IDS; do

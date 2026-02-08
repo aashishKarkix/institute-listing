@@ -110,8 +110,6 @@ jobs:
           EOF
 
       - name: Build & Push Docker Image
-        env:
-          IMAGE_TAG=${{ steps.tag.outputs.image_tag }}
         run: |
           echo "Using IMAGE_TAG=$IMAGE_TAG"
           chmod +x build-push.sh
